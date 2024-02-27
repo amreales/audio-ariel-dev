@@ -2,10 +2,28 @@ import streamlit as st
 import requests
 import os
 import assemblyai as aai
+from streamlit.components.v1 import html
+
+# Custom JS to change Streamlit default text to Spanish
+def change_file_uploader_label():
+    custom_js = """
+    <script>
+        // Wait for the window to load completely
+        window.onload = function() {
+            // Select the label of the file uploader
+            var fileUploaderLabel = document.querySelector('.fileUploaderLabel');
+            if (fileUploaderLabel) {
+                // Change the text to Spanish
+                fileUploaderLabel.innerHTML = 'Arrastra y suelta un archivo aquí o <span style="text-decoration:underline;">busca archivos</span>';
+            }
+        }
+    </script>
+    """
+    html(custom_js, height=0)
 
 # Set page config
 st.set_page_config(
-   page_title='DEV',
+   page_title='Your App Title',
    layout='wide',  # Use 'wide' for expanded margins
    initial_sidebar_state='auto',  # Can be 'auto', 'expanded', 'collapsed'
    menu_items={
@@ -74,7 +92,10 @@ st.markdown(custom_css, unsafe_allow_html=True)
 
 # Streamlit UI
 st.image('logofull.png', width=200)  # Adjust the width as needed
-st.title('DEV.Transcripciones de audio')
+st.title('Transcripciones de audio')
+
+# Call this function before your file uploader to change its label to Spanish
+change_file_uploader_label()
 
 # File uploader
 uploaded_file = st.file_uploader("Sube un archivo de audio para transcribirlo y resumirlo rápidamente. Tu información permanecerá privada y no se almacenará.", type=['mp3', 'wav', 'mpeg', 'mp4', 'm4a'])
@@ -100,4 +121,3 @@ if uploaded_file is not None:
 
             st.subheader('Transcripción')
             st.text_area('Transcripción completa del audio original', formatted_text, height=400)
-
