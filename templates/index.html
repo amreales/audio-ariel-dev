@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Transcription App</title>
+</head>
+<body>
+    <h1>Transcribe Audio</h1>
+    <form id="transcription-form">
+        <input type="file" id="file" name="file" accept="audio/*" />
+        <button type="submit">Transcribe</button>
+    </form>
+    <h2>Transcription</h2>
+    <div id="transcription-result"></div>
+    <h2>Summary</h2> <!-- Title above the summarized text -->
+    <div id="summary-result"></div> <!-- Display the summary -->
+    <button id="download-btn" style="display:none;">Download Document</button>
+
+    <script>
+        document.getElementById('transcription-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const response = await fetch('/transcribe', {
+                method: 'POST',
+                body: formData,
+            });
+            const result = await response.json();
+            const text = result.text || result.error;
+            const summary = result.summary; // Get the summary from the result
+            document.getElementById('transcription-result').innerHTML = text.split('\n').map(paragraph => `<p>${paragraph}</p>`).join('');
+            document.getElementById('summary-result').textContent = summary; // Display the summary
+            const downloadBtn = document.getElementById('download-btn');
+            downloadBtn.style.display = 'block';
+            downloadBtn.onclick = function() {
+                const blob = new Blob([text], { type: 'application/msword' });
+                const downloadUrl = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                a.download = 'transcription.doc';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            };
+        };
+    </script>
+</body>
+</html>

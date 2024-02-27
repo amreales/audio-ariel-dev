@@ -5,7 +5,7 @@ import assemblyai as aai
 
 # Set page config
 st.set_page_config(
-   page_title='Your App Title',
+   page_title='Ariel Transcripciones',
    layout='wide',  # Use 'wide' for expanded margins
    initial_sidebar_state='auto',  # Can be 'auto', 'expanded', 'collapsed'
    menu_items={
