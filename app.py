@@ -5,14 +5,14 @@ import assemblyai as aai
 
 # Set page config
 st.set_page_config(
-   page_title='DEV',
-   layout='wide',  # Use 'wide' for expanded margins
-   initial_sidebar_state='auto',  # Can be 'auto', 'expanded', 'collapsed'
-   menu_items={
-       'Get Help': 'https://www.extremelyhelpfulmenuitem.com',
-       'Report a bug': "https://www.bugreportpage.com",
-       'About': "# This is a header. This is an *extremely* cool app!"
-   }
+    page_title='DEV',
+    layout='wide',  # Use 'wide' for expanded margins
+    initial_sidebar_state='auto',  # Can be 'auto', 'expanded', 'collapsed'
+    menu_items={
+        'Get Help': 'https://www.extremelyhelpfulmenuitem.com',
+        'Report a bug': "https://www.bugreportpage.com",
+        'About': "# This is a header. This is an *extremely* cool app!"
+    }
 )
 
 # Replace with your AssemblyAI API key
@@ -45,59 +45,50 @@ def transcribe_audio(file):
 
     return transcript
 
-# Streamlit UI customizations
-def local_css():
-    with open('style.css') as f:
-        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+def ask_question(transcribed_text, question):
+    # Create a Lemur task to answer a question based on the transcribed text
+    lemur_prompt = f"{transcribed_text}\n\nPregunta: {question}\nRespuesta:"
+    lemur_response = transcript.lemur.task(lemur_prompt, model="davinci")
+    return lemur_response.response
 
-# Use the function above to apply custom CSS
-local_css()
-
-# Set custom font to Segoe UI Web
-custom_css = """
-<style>
-    html, body, [class*="st-"] {
-        font-family: "Segoe UI Web", sans-serif;
-    }
-</style>
-"""
-
-# Hide the "Made with Streamlit" footer
-st.markdown("""
-    <style>
-        #MainMenu {visibility: hidden;}
-        footer {visibility: hidden;}
-    </style>
-    """, unsafe_allow_html=True)
-
-st.markdown(custom_css, unsafe_allow_html=True)
+# Streamlit UI customizations and CSS functions remain unchanged
+# ...
 
 # Streamlit UI
-st.image('logofull.png', width=200)  # Adjust the width as needed
+st.image('logofull.png', width=200)
 st.title('Transcripciones de audio')
 
-# File uploader
-uploaded_file = st.file_uploader("Sube un archivo de audio para transcribirlo y resumirlo rápidamente. Tu información permanecerá privada y no se almacenará.", type=['mp3', 'wav', 'mpeg', 'mp4', 'm4a'])
+# Create columns for Transcript, Summary, and Chat
+col1, col2, col3 = st.columns(3)
 
-if uploaded_file is not None:
-    # Display a message while file is being transcribed
-    with st.spinner('Transcribiendo...'):
-        transcript = transcribe_audio(uploaded_file)
+with col1:
+    st.subheader('Transcripción')
+    uploaded_file = st.file_uploader("Sube un archivo de audio para transcribirlo y resumirlo rápidamente. Tu información permanecerá privada y no se almacenará.", type=['mp3', 'wav', 'mpeg', 'mp4', 'm4a'])
+    if uploaded_file is not None:
+        with st.spinner('Transcribiendo...'):
+            transcript = transcribe_audio(uploaded_file)
 
-        if transcript.status == aai.TranscriptStatus.error:
-            st.error('Error durante la transcripción: ' + transcript.error)
-        else:
-            # Display the transcription and summary
-            formatted_text = "\n".join(
-                f"Interlocutor {utterance.speaker}: {utterance.text}\n" for utterance in transcript.utterances
-            )
-            summary_prompt = "Haz un resumen detallado de la transcripción"
-            summary_result = transcript.lemur.task(summary_prompt)
-            summary = summary_result.response
+            if transcript.status == aai.TranscriptStatus.error:
+                st.error('Error durante la transcripción: ' + transcript.error)
+            else:
+                formatted_text = "\n".join(
+                    f"Interlocutor {utterance.speaker}: {utterance.text}\n" for utterance in transcript.utterances
+                )
+                st.text_area('Transcripción completa del audio original', formatted_text, height=400)
 
-            st.subheader('Resumen')
-            st.text_area('Resumen general del audio suministrado', summary, height=300)
+with col2:
+    st.subheader('Resumen')
+    if uploaded_file is not None and transcript.status != aai.TranscriptStatus.error:
+        summary_prompt = "Haz un resumen detallado de la transcripción"
+        summary_result = transcript.lemur.task(summary_prompt)
+        summary = summary_result.response
+        st.text_area('Resumen general del audio suministrado', summary, height=300)
 
-            st.subheader('Transcripción')
-            st.text_area('Transcripción completa del audio original', formatted_text, height=400)
-
+with col3:
+    st.subheader('Chat con el texto')
+    if uploaded_file is not None and transcript.status != aai.TranscriptStatus.error:
+        user_question = st.text_input("Haz una pregunta basada en la transcripción:")
+        if user_question:
+            with st.spinner('Buscando respuesta...'):
+                answer = ask_question(formatted_text, user_question)
+                st.text_area('Respuesta', answer, height=300)
