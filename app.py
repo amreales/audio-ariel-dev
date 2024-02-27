@@ -48,7 +48,7 @@ def transcribe_audio(file):
 def ask_question(transcribed_text, question):
     # Create a Lemur task to answer a question based on the transcribed text
     lemur_prompt = f"{transcribed_text}\n\nPregunta: {question}\nRespuesta:"
-    lemur_response = transcript.lemur.task(lemur_prompt, model="davinci")
+    lemur_response = transcript.lemur.task(lemur_prompt)
     return lemur_response.response
 
 # Streamlit UI customizations and CSS functions remain unchanged
