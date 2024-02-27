@@ -10,11 +10,17 @@ def change_file_uploader_label():
     <script>
         // Wait for the window to load completely
         window.onload = function() {
-            // Select the label of the file uploader
-            var fileUploaderLabel = document.querySelector('.fileUploaderLabel');
-            if (fileUploaderLabel) {
-                // Change the text to Spanish
-                fileUploaderLabel.innerHTML = 'Arrastra y suelta un archivo aquí o <span style="text-decoration:underline;">busca archivos</span>';
+            // Select the label inside the file uploader component
+            var fileUploaderLabels = document.querySelectorAll('label[class*="fileUploaderLabel"] span');
+            if (fileUploaderLabels) {
+                // Change the text of both Drag&Drop and Browse files
+                fileUploaderLabels.forEach(function(label) {
+                    if (label.textContent.includes('Drag and drop')) {
+                        label.innerHTML = 'Arrastra y suelta un archivo aquí o ';
+                    } else if (label.textContent.includes('Browse files')) {
+                        label.innerHTML = '<span style="text-decoration:underline;">busca archivos</span>';
+                    }
+                });
             }
         }
     </script>
