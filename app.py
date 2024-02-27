@@ -74,7 +74,7 @@ st.markdown(custom_css, unsafe_allow_html=True)
 
 # Streamlit UI
 st.image('logofull.png', width=200)  # Adjust the width as needed
-st.title('Transcripciones de audio')
+st.title('DEV.Transcripciones de audio')
 
 # File uploader
 uploaded_file = st.file_uploader("Sube un archivo de audio para transcribirlo y resumirlo rápidamente. Tu información permanecerá privada y no se almacenará.", type=['mp3', 'wav', 'mpeg', 'mp4', 'm4a'])
