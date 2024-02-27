@@ -29,7 +29,7 @@ def change_file_uploader_label():
 
 # Set page config
 st.set_page_config(
-   page_title='Your App Title',
+   page_title='DEV',
    layout='wide',  # Use 'wide' for expanded margins
    initial_sidebar_state='auto',  # Can be 'auto', 'expanded', 'collapsed'
    menu_items={
